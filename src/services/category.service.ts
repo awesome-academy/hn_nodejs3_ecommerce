@@ -30,6 +30,14 @@ export const adminGetCategories = async (data: any) => {
   return {categories, count};
 };
 
+export const getAllCategories = async () => {
+  return await categoryRepository.find({
+    order: {
+      createdAt: 'DESC',
+    },
+  });
+};
+
 export const getCategoryByName = async (name: string) => {
   return await categoryRepository.findOne({
     where: {

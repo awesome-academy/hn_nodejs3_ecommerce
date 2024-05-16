@@ -2,12 +2,13 @@ import asyncHandler from 'express-async-handler';
 import { checkIsAdmin, checkLoggedIn } from '../middlewares';
 import { NextFunction, Request, Response } from 'express';
 import * as userService from '../services/user.service';
-import { ErrorCode, Gender, Role, Status, EntityStatus } from '../constants';
+import { ErrorCode, Gender, Role, Status, EntityStatus, USER_WORKSHEET_COLUMNS } from '../constants';
 import { uploadImage } from '../middlewares/multer.middleware';
 import { validateCreateUser, validateUpdateUser } from '../middlewares/validate/user.validate';
 import { getTranslatedMessage } from '../utils/i18n';
 import * as cartService from '../services/cart.service';
 import { t } from 'i18next';
+import ExcelJS from 'exceljs';
 
 export interface IAdminUserRequest extends Request {
   user?: any;
@@ -124,4 +125,28 @@ export const activeUser = [
       message: getTranslatedMessage('admin.user.activeUserSuccess', req.query.lng),
     });
   },
+];
+
+export const exportData = [
+  checkLoggedIn,
+  checkIsAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const users = await userService.getAllUsers();
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Users');
+
+    worksheet.columns = USER_WORKSHEET_COLUMNS;
+    
+    users.forEach(user => {
+      worksheet.addRow(user);
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=users.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+    return;
+  }),
 ];

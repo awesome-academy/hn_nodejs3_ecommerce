@@ -1,12 +1,13 @@
 import asyncHandler from 'express-async-handler';
 import { IAuthRequest, checkIsAdmin, checkLoggedIn, checkValidId } from '../middlewares';
 import * as orderService from '../services/order.service';
-import { Response } from 'express';
-import { OrderStatus, PaymentMethod, Status } from '../constants';
+import { Request, Response } from 'express';
+import { ORDER_WORKSHEET_COLUMNS, OrderStatus, PaymentMethod, Status } from '../constants';
 import { IOrderRequest, checkExistsOrder } from './order.controller';
 import { getTranslatedMessage } from '../utils/i18n';
 import { sendMailDataToQueue } from '../utils/mail';
 import { t } from 'i18next';
+import ExcelJS from 'exceljs';
 
 export const getOrders = [
   checkLoggedIn,
@@ -149,6 +150,44 @@ export const completeOrder = [
     }
 
     res.send(data);
+    return;
+  }),
+];
+
+export const exportData = [
+  checkLoggedIn,
+  checkIsAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const orders = await orderService.getAllOrders();
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Orders');
+
+    worksheet.columns = ORDER_WORKSHEET_COLUMNS;
+
+    orders.forEach(order => {
+      worksheet.addRow({
+        id: order.id,
+        user: order.user ? order.user.name : 'N/A',
+        coupon: order.coupon ? order.coupon.name : 'N/A',
+        total: order.total,
+        name: order.name,
+        phone: order.phone,
+        email: order.email,
+        paymentMethod: order.paymentMethod,
+        status: order.status,
+        address: order.address,
+        reasonReject: order.reasonReject,
+        note: order.note,
+        proof: order.proof,
+      });
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=orders.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
     return;
   }),
 ];

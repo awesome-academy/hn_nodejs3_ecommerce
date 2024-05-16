@@ -4,8 +4,9 @@ import * as categoryService from '../services/category.service';
 import asyncHandler from 'express-async-handler';
 import { validateCreateCategory } from '../middlewares/validate/category.validate';
 import { getTranslatedMessage } from '../utils/i18n';
-import { ErrorCode, Status } from '../constants';
+import { CATEGORY_WORKSHEET_COLUMNS, ErrorCode, Status } from '../constants';
 import { t } from 'i18next';
+import ExcelJS from 'exceljs';
 
 export interface IAdminCategoryRequest extends Request {
   category?: any;
@@ -77,6 +78,30 @@ export const updateCategory = [
       status: Status.SUCCESS,
       message: getTranslatedMessage('category.updateSuccess', req.query.lng),
     });
+    return;
+  }),
+];
+
+export const exportData = [
+  checkLoggedIn,
+  checkIsAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const categories = await categoryService.getAllCategories();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Categories');
+
+    worksheet.columns = CATEGORY_WORKSHEET_COLUMNS;
+
+    categories.forEach(category => {
+      worksheet.addRow(category);
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=categories.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
     return;
   }),
 ];

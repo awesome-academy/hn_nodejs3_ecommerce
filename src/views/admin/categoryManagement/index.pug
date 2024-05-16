@@ -19,6 +19,9 @@ block admin_content
             button#addCategory.btn.btn-secondary(data-bs-toggle="modal" data-bs-target="#modalCreateCategory")
               i.fas.fa-plus
               span #{t('admin.category.addNewCategory')}
+            a.btn.btn-secondary(href='/admin/category/export')
+              i.fas.fa-file-export
+              span #{t('admin.coupon.exportToExcel')}
       table.table.table-hover
         thead
           tr

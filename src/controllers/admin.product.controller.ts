@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { checkIsAdmin, checkLoggedIn, checkValidId } from '../middlewares';
 import * as productService from '../services/product.service';
 import { NextFunction, Request, Response } from 'express';
-import { EntityStatus, ErrorCode, Status } from '../constants';
+import { EntityStatus, ErrorCode, PRODUCT_WORKSHEET_COLUMNS, Status } from '../constants';
 import * as categoryService from '../services/category.service';
 import { uploadImage } from '../middlewares/multer.middleware';
 import { validateCreateProduct } from '../middlewares/validate/product.validate';
@@ -11,6 +11,7 @@ import { t } from 'i18next';
 import { Product } from '../entities/product.entity';
 import { Transactional } from 'typeorm-transactional';
 import * as orderService from '../services/order.service';
+import ExcelJS from 'exceljs';
 
 export interface IAdminProductRequest extends Request {
   product?: Product;
@@ -171,4 +172,38 @@ export const activeProduct = [
       message: getTranslatedMessage('admin.product.activeProductSuccess', req.query.lng),
     });
   },
+];
+
+export const exportData = [
+  checkLoggedIn,
+  checkIsAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const products = await productService.getAllProducts();
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Products');
+
+    worksheet.columns = PRODUCT_WORKSHEET_COLUMNS;
+
+    products.forEach(product => {
+      worksheet.addRow({
+        id: product.id,
+        name: product.name,
+        category: product.category ? product.category.name : 'N/A',
+        price: product.price,
+        description: product.description,
+        quantity: product.quantity,
+        ratingAvg: product.ratingAvg,
+        quantitySold: product.quantitySold,
+        isActive: product.isActive,
+      });
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=products.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+    return;
+  }),
 ];

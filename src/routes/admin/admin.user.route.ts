@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import * as adminUserControllers from '../../controllers/admin.user.controller';
 
+router.get('/export', adminUserControllers.exportData);
 router.get('/create', adminUserControllers.getCreateUser);
 router.post('/create', adminUserControllers.postCreateUser);
 router.get('/:id', adminUserControllers.getUpdateUser);

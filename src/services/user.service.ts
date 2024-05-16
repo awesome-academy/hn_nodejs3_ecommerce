@@ -4,7 +4,7 @@ import { User } from '../entities/user.entity';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import config from '../config';
-import { EntityStatus } from '../constants';
+import { EntityStatus, Role } from '../constants';
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -181,4 +181,15 @@ export const updateProfile = async (user: User, data: any) => {
   user.address = data.address;
 
   return await userRepository.save(user);
+};
+
+export const getAllUsers = async () => {
+  return await userRepository.find({
+    where: {
+      role: Role.USER,
+    },
+    order: {
+      createdAt: 'DESC',
+    },
+  });
 };

@@ -11,6 +11,7 @@ import { t } from 'i18next';
 import { getTranslatedMessage } from '../utils/i18n';
 import config from '../config';
 import { sendMailDataToQueue } from '../utils/mail';
+import dayjs from 'dayjs';
 
 const orderRepository = AppDataSource.getRepository(Order);
 const orderItemRepository = AppDataSource.getRepository(OrderItem);
@@ -71,13 +72,13 @@ export const getOrders = async (user: User, data: any) => {
 
   if (data.startDate) {
     query.andWhere('(order.created_at >= :startDate)', {
-      startDate: data.startDate,
+      startDate: dayjs(data.startDate).startOf('day').toDate(),
     });
   }
 
   if (data.endDate) {
     query.andWhere('(order.created_at <= :endDate)', {
-      endDate: data.endDate,
+      endDate: dayjs(data.endDate).endOf('day').toDate(),
     });
   }
 
@@ -263,4 +264,13 @@ export const sendEmailDataStatistic = async () => {
   };
   
   await sendMailDataToQueue(emailData);
+};
+
+export const getAllOrders = async () => {
+  return await orderRepository.find({
+    relations: ['coupon', 'user'],
+    order: {
+      createdAt: 'DESC',
+    },
+  });
 };

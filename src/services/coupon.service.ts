@@ -87,3 +87,11 @@ export const updateCoupon = async (coupon: Coupon, data: any) => {
 
   return await couponRepository.save(coupon);
 };
+
+export const getAllCoupons = async () => {
+  return await couponRepository.find({
+    order: {
+      createdAt: 'DESC',
+    },
+  });
+};

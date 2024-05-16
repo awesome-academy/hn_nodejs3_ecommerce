@@ -148,3 +148,12 @@ export const changeStatusProduct = async (product: Product, status: boolean) => 
 
   return await productRepository.save(product);
 };
+
+export const getAllProducts = async () => {
+  return await productRepository.find({
+    relations: ['category'],
+    order: {
+      createdAt: 'DESC',
+    },
+  });
+};

@@ -4,9 +4,10 @@ import * as couponService from '../services/coupon.service';
 import * as orderService from '../services/order.service';
 import { NextFunction, Request, Response } from 'express';
 import { getTranslatedMessage } from '../utils/i18n';
-import { ErrorCode, Status } from '../constants';
+import { COUPON_WORKSHEET_COLUMNS, ErrorCode, Status } from '../constants';
 import { validateCreateCoupon } from '../middlewares/validate/coupon.validate';
 import { t } from 'i18next';
+import ExcelJS from 'exceljs';
 
 interface IAdminCouponRequest extends Request {
   coupon?: any;
@@ -103,5 +104,29 @@ export const postUpdateCoupon = [
       return;
     }
     
+  }),
+];
+
+export const exportData = [
+  checkLoggedIn,
+  checkIsAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const coupons = await couponService.getAllCoupons();
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Coupons');
+
+    worksheet.columns = COUPON_WORKSHEET_COLUMNS;
+
+    coupons.forEach(coupon => {
+      worksheet.addRow(coupon);
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=coupons.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+    return;
   }),
 ];
