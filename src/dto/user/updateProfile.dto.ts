@@ -35,6 +35,7 @@ class UpdateProfileDTO {
     this.dateOfBirth = data.dateOfBirth;
     this.phone = data.phone;
     this.address = data.address;
+    this.gender = data.gender;
   }
 }
 

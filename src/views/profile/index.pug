@@ -24,21 +24,41 @@ block content
                   label.small.mb-1(for='inputUsername')
                     | #{t('profile.name')}
                   input#inputUsername.form-control(type='text' value=user.name name='name' required='')
+                  if errors
+                    - let error= errors.find(e => e.path == 'name')
+                    if error
+                      p.text-danger #{error.msg}
                 .mb-3
                   label.small.mb-1(for='inputGender') #{t('profile.gender')}
                   select#gender.form-select(required='' name='gender')
                     each gender in genders
-                      option(value=gender) #{gender}
+                      option(value=gender selected=(user.gender === gender)) #{gender}
+                  if errors
+                    - let error= errors.find(e => e.path == 'gender')
+                    if error
+                      p.text-danger #{error.msg}
                 .mb-3
                   label.small.mb-1(for='inputAddress') #{t('profile.address')}
                   input#inputAddress.form-control(type='text' value=user.address required='' name='address')
+                  if errors
+                    - let error= errors.find(e => e.path == 'address')
+                    if error
+                      p.text-danger #{error.msg}
                 .row.gx-3.mb-3
                   .col-md-6
                     label.small.mb-1(for='inputPhone') #{t('profile.phone')}
                     input#inputPhone.form-control(type='tel' value=user.phone required='' name='phone')
+                    if errors
+                      - let error= errors.find(e => e.path == 'phone')
+                      if error
+                        p.text-danger #{error.msg}
                   .col-md-6
                     label.small.mb-1(for='inputBirthday') #{t('profile.dateOfBirth')}
                     input#inputBirthday.form-control(type='date' value=user.dateOfBirth required='' name='dateOfBirth')
+                    if errors
+                      - let error= errors.find(e => e.path == 'dateOfBirth')
+                      if error
+                        p.text-danger #{error.msg}
                 .d-flex
                   button.btn.btn-primary.text-white(type='submit') #{t('profile.saveChanges')}
                   a.btn.btn-primary.text-white.w-200px.mx-2(href='/user/change-password') #{t('profile.changePassword')}

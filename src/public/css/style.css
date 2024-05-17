@@ -552,6 +552,10 @@
   border-right: 2px solid #dee2e6 !important;
 }
 
+.border-left-2 {
+  border-left: 2px solid #dee2e6 !important;
+}
+
 .navigation-table-admin:hover {
   background-color: #81c408 !important;
   color: #fff !important;

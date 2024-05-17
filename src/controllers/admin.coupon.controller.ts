@@ -27,9 +27,8 @@ export const getCoupons = [
 ];
 
 const checkExistsCouponByName = async(req: IAdminCouponRequest, res: Response, next: NextFunction) => {
-  if(req.coupon.name === req.body.name) {
-    next();
-    return;
+  if(req.coupon && req.coupon.name === req.body.name) {
+    return next();
   }
   
   const coupon = await couponService.getCouponByName(req.body.name);
@@ -71,6 +70,7 @@ const checkExistsCouponById = async (req: IAdminCouponRequest, res: Response, ne
   const coupon = await couponService.getCouponById(parseInt(req.params.id));
   if (coupon === null) {
     res.render('error', { code: ErrorCode.NOT_FOUND, title: t('error.notFound'), message: t('error.notFound', {id: req.params.id}) });
+    return;
   }
 
   req.coupon = coupon;
@@ -87,7 +87,7 @@ export const postUpdateCoupon = [
   asyncHandler(async(req: IAdminCouponRequest, res: Response) => {
     const orders = await orderService.getOrdersByCoupon(req.coupon);
 
-    if (orders) {
+    if (orders.length > 0) {
       res.send({
         status: Status.FAIL,
         message: getTranslatedMessage('error.orderContainCouponUnprocessed', req.query.lng),

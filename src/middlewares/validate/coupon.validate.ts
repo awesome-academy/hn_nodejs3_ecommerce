@@ -14,10 +14,11 @@ export const validateCreateCoupon = async (req: Request, res: Response, next: Ne
       path: error.property,
       msg: getTranslatedMessage(Object.values(error.constraints)[0], req.query.lng),
     }));
-    return res.send({
+    res.send({
       status: Status.FAIL,
       errors: errorMessages,
     });
+    return;
   }
 
   next();

@@ -144,7 +144,7 @@ export const inactiveProduct = [
   async (req: IAdminProductRequest, res: Response) => {
     const orders = await orderService.getOrdersByProduct(req.product);
 
-    if (orders) {
+    if (orders.length > 0) {
       return res.send({
         status: Status.FAIL,
         message: getTranslatedMessage('error.orderUnprocessed', req.query.lng),

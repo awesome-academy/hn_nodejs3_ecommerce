@@ -8,8 +8,6 @@ block admin_content
           | #{t('admin.product.search')}
         .input-group
           input#keyword.form-control(type='search' placeholder='keywords' aria-describedby='search-icon-1' value=(query.keyword ? query.keyword : ''))
-          span#search-icon-1.input-group-text.p-2
-            i.fa.fa-search
       div.w-25.px-3
         label.form-label(for='minPrice').pe-2
           | #{t('admin.product.priceMin')}

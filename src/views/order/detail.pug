@@ -37,7 +37,7 @@ block content
           .text-white.approved-bg-color.px-3.py-1.rounded.d-flex.justify-content-center.align-items-center #{order.status}
         if order.status === OrderStatus.REJECTED
           .text-white.rejected-bg-color.px-3.py-1.rounded.d-flex.justify-content-center.align-items-center #{order.status}
-        if order.status === OrderStatus.CANCELED
+        if order.status === OrderStatus.CANCELLED
           .text-white.canceled-bg-color.px-3.py-1.rounded.d-flex.justify-content-center.align-items-center #{order.status}
       form(method='POST' enctype='multipart/form-data' actions='/checkout')
         .row.g-5
